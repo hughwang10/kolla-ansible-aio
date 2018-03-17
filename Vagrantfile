@@ -7,24 +7,24 @@
 # you're doing.
 $common_script = <<SCRIPT
 apt-get update
-apt-get install -qy docker.io
-# apt-get update && apt-get install -y apt-transport-https
-# curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-# echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" >/etc/apt/sources.list.d/kubernetes.list
-# apt-get update
-# apt-get install -y kubelet kubeadm kubectl
-echo "192.168.121.201 c1" | sudo tee -a /etc/hosts
-# echo "192.168.121.202 w1" | sudo tee -a /etc/hosts
+apt-get install -qy python-pip docker.io
+pip install -U pip
+echo "192.168.121.201 aio" | sudo tee -a /etc/hosts
 SCRIPT
 
 $kolla_ansible_script = <<SCRIPT
 apt-get update
-apt-get install -qy python-pip python-dev libffi-dev gcc libssl-dev python-selinux
-pip install -U pip
+apt-get install -qy python-dev libffi-dev gcc libssl-dev python-selinux
 pip install -U ansible
 pip install -U kolla-ansible
 cp -r /usr/local/share/kolla-ansible/etc_examples/kolla /etc/kolla/
 su -c 'cp /usr/local/share/kolla-ansible/ansible/inventory/* /home/vagrant' vagrant
+sed -i 's/^#kolla_base_distro:.*/#kolla_base_distro: "ubuntu"/' /etc/kolla/globals.yml
+sed -i 's/^kolla_internal_vip_address:.*/kolla_internal_vip_address: 192.168.121.254/' /etc/kolla/globals.yml
+sed -i 's/^#network_interface:.*/network_interface: "enp0s8"/' /etc/kolla/globals.yml
+sed -i 's/^#neutron_external_interface:.*/neutron_external_interface: "enp0s9"/' /etc/kolla/globals.yml
+sed -i 's/^#enable_haproxy:.*/enable_haproxy: "no"/' /etc/kolla/globals.yml
+kolla-genpwd
 SCRIPT
 
 # $ctrl_script = <<SCRIPT
@@ -85,14 +85,14 @@ Vagrant.configure("2") do |config|
     vb.memory = 8192
   end
 
-  config.vm.define vm_name = "c1" do |c1|
-    c1.vm.hostname = "c1"
-    c1.vm.network :private_network, ip: "192.168.121.201",nic_type: "virtio"
-    c1.vm.network :private_network, ip: "192.168.122.201",nic_type: "virtio"
-    # c1.vm.network "forwarded_port", guest: 8001, host: 8001, host_ip: "127.0.0.1"
-    # c1.vm.provision "shell", inline: $ctrl_script
-    # c1.vm.provision "shell", inline: $fuel_ccp_script    
-    c1.vm.provision "shell", inline: $kolla_ansible_script
+  config.vm.define vm_name = "aio" do |aio|
+    aio.vm.hostname = "aio"
+    aio.vm.network :private_network, ip: "192.168.121.201",nic_type: "virtio" # for API
+    aio.vm.network :private_network, ip: "192.168.122.201",nic_type: "virtio" # for neutron
+    # aio.vm.network "forwarded_port", guest: 8001, host: 8001, host_ip: "127.0.0.1"
+    # aio.vm.provision "shell", inline: $ctrl_script
+    # aio.vm.provision "shell", inline: $fuel_ccp_script    
+    aio.vm.provision "shell", inline: $kolla_ansible_script
   end
 
   config.vm.provision "shell", inline: $common_script
