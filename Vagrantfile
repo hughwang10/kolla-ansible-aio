@@ -22,13 +22,11 @@ cp -r /usr/local/share/kolla-ansible/etc_examples/kolla /etc/kolla/
 su -c 'cp /usr/local/share/kolla-ansible/ansible/inventory/* /home/vagrant' vagrant
 sed -i 's/^#kolla_base_distro:.*/kolla_base_distro: "ubuntu"/' /etc/kolla/globals.yml
 sed -i 's/^#openstack_release:.*/openstack_release: "master"/' /etc/kolla/globals.yml
+sed -i 's/^#kolla_install_type:.*/kolla_install_type: "source"/' /etc/kolla/globals.yml
 sed -i 's/^kolla_internal_vip_address:.*/kolla_internal_vip_address: "192.168.121.254"/' /etc/kolla/globals.yml
 sed -i 's/^#network_interface:.*/network_interface: "enp0s8"/' /etc/kolla/globals.yml
 sed -i 's/^#neutron_external_interface:.*/neutron_external_interface: "enp0s9"/' /etc/kolla/globals.yml
-# sed -i 's/^restrict[[:space:]]-4/#restrict -4/' /etc/ntp.conf
-# sed -i 's/^restrict[[:space:]]-6/#restrict -6/' /etc/ntp.conf
-# echo "server 159.107.189.59" >> /etc/ntp.conf
-systemctl restart ntp
+sed -i 's/^#nova_compute_virt_type:.*/nova_compute_virt_type: "qemu"/' /etc/kolla/globals.yml
 kolla-genpwd
 SCRIPT
 
