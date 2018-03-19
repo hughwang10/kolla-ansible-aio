@@ -59,10 +59,16 @@ kolla-ansible -i /home/vagrant/all-in-one bootstrap-servers
 kolla-ansible -i /home/vagrant/all-in-one prechecks
 kolla-ansible -i /home/vagrant/all-in-one deploy
 
-# kolla-ansible post-deploy
+kolla-ansible post-deploy
 . /etc/kolla/admin-openrc.sh
 
-. /usr/local/share/kolla-ansible/init-runonce
+free -h
+df -h
+
+egrep -i "keystone_admin_password" /etc/kolla/passwords.yml
+
+# test call
+echo " . /usr/local/share/kolla-ansible/init-runonce"
 
 SCRIPT
 
