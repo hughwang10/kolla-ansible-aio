@@ -1,5 +1,5 @@
---- a/ansible/roles/glance/tasks/bootstrap_service.yml
-+++ b/ansible/roles/glance/tasks/bootstrap_service.yml
+--- /usr/local/share/kolla-ansible/ansible/roles/glance/tasks/bootstrap_service.yml	2018-03-19 18:52:51.312958204 +0000
++++ /usr/local/share/kolla-ansible/ansible/roles/glance/tasks/bootstrap_service.yml	2018-03-19 18:55:24.489508205 +0000
 @@ -1,4 +1,19 @@
  ---
 +- name: Enable log_bin_trust_function_creators function

@@ -1,6 +1,6 @@
---- a/ansible/library/kolla_docker.py
-+++ b/ansible/library/kolla_docker.py
-@@ -635,11 +635,15 @@ class DockerWorker(object):
+--- /usr/local/share/kolla-ansible/ansible/library/kolla_docker.py  2018-03-19 19:00:06.534460211 +0000
++++ /usr/local/share/kolla-ansible/ansible/library/kolla_docker.py  2018-03-19 19:01:59.118724216 +0000
+@@ -619,11 +619,15 @@
          # We do not want to detach so we wait around for container to exit
          if not self.params.get('detach'):
              rc = self.dc.wait(self.params.get('name'))
@@ -13,9 +13,7 @@
                      failed=True,
                      changed=True,
 -                    msg="Container exited with non-zero return code"
-+                    msg="Container exited with non-zero return code %s" % rc
++                    msg="Container exited with non-zero return code %s" % r
                  )
              if self.params.get('remove_on_exit'):
                  self.stop_container()
--- 
-cgit v1.1

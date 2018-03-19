@@ -26,18 +26,41 @@ sed -i 's/^#kolla_install_type:.*/kolla_install_type: "source"/' /etc/kolla/glob
 sed -i 's/^kolla_internal_vip_address:.*/kolla_internal_vip_address: "192.168.121.254"/' /etc/kolla/globals.yml
 sed -i 's/^#network_interface:.*/network_interface: "enp0s8"/' /etc/kolla/globals.yml
 sed -i 's/^#neutron_external_interface:.*/neutron_external_interface: "enp0s9"/' /etc/kolla/globals.yml
-#sed -i 's/^#nova_compute_virt_type:.*/nova_compute_virt_type: "qemu"/' /etc/kolla/globals.yml
-sed -i 's/^#nova_compute_virt_type:.*/nova_compute_virt_type: "vmware"/' /etc/kolla/globals.yml
-sed -i 's/^#enable_cinder:.*/enable_cinder: "yes"/' /etc/kolla/globals.yml
-sed -i 's/^#cinder_backend_vmwarevc_vmdk:.*/cinder_backend_vmwarevc_vmdk: "yes"/' /etc/kolla/globals.yml
-sed -i 's/^#vmware_vcenter_host_ip:.*/vmware_vcenter_host_ip: "10.44.147.160"/' /etc/kolla/globals.yml
-sed -i 's/^#vmware_vcenter_host_username:.*/vmware_vcenter_host_username: administrator@vsphere.local/' /etc/kolla/globals.yml
-sed -i 's/^#vmware_vcenter_host_password:.*/vmware_vcenter_host_password: W@pwap12/' /etc/kolla/globals.yml
-sed -i 's/^#vmware_datastore_name:.*/vmware_datastore_name: datastoreAFG/' /etc/kolla/globals.yml
-sed -i 's/^#vmware_vcenter_name:.*/vmware_vcenter_name: afglab/' /etc/kolla/globals.yml
-sed -i 's/^#vmware_vcenter_cluster_name:.*/vmware_vcenter_cluster_name: afglab-cluster1/' /etc/kolla/globals.yml
+sed -i 's/^#nova_compute_virt_type:.*/nova_compute_virt_type: "qemu"/' /etc/kolla/globals.yml
+
+# VMware
+# sed -i 's/^#nova_compute_virt_type:.*/nova_compute_virt_type: "vmware"/' /etc/kolla/globals.yml
+# sed -i 's/^#enable_cinder:.*/enable_cinder: "yes"/' /etc/kolla/globals.yml
+# sed -i 's/^#cinder_backend_vmwarevc_vmdk:.*/cinder_backend_vmwarevc_vmdk: "yes"/' /etc/kolla/globals.yml
+# sed -i 's/^#vmware_vcenter_host_ip:.*/vmware_vcenter_host_ip: "10.44.147.160"/' /etc/kolla/globals.yml
+# sed -i 's/^#vmware_vcenter_host_username:.*/vmware_vcenter_host_username: administrator@vsphere.local/' /etc/kolla/globals.yml
+# sed -i 's/^#vmware_vcenter_host_password:.*/vmware_vcenter_host_password: W@pwap12/' /etc/kolla/globals.yml
+# sed -i 's/^#vmware_datastore_name:.*/vmware_datastore_name: datastoreAFG/' /etc/kolla/globals.yml
+# sed -i 's/^#vmware_vcenter_name:.*/vmware_vcenter_name: afglab/' /etc/kolla/globals.yml
+# sed -i 's/^#vmware_vcenter_cluster_name:.*/vmware_vcenter_cluster_name: afglab-cluster1/' /etc/kolla/globals.yml
+
+# Disable ntp (caused bootstrap-servers hangning)
 sed -i 's/^enable_host_ntp:.*/enable_host_ntp: False/' /usr/local/share/kolla-ansible/ansible/roles/baremetal/defaults/main.yml
+
+# https://bugs.launchpad.net/kolla-ansible/+bug/1746748
+patch < /vagrant/patch/mariadb_bootstrap.patch
+
+# https://bugs.launchpad.net/kolla-ansible/+bug/1748347
+patch < /vagrant/patch/glance_bootstrap.patch
+
 kolla-genpwd
+
+cd /home/vagrant
+# start deploy here
+kolla-ansible -i ./all-in-on bootstrap-servers
+kolla-ansible -i ./all-in-on prechecks
+kolla-ansible -i ./all-in-on deploy
+
+kolla-ansible post-deploy
+. /etc/kolla/admin-openrc.sh
+
+. /usr/local/share/kolla-ansible/init-runonce
+
 SCRIPT
 
 Vagrant.configure("2") do |config|
