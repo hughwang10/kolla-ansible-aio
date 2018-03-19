@@ -18,8 +18,12 @@ apt-get install -qy python-dev libffi-dev gcc libssl-dev python-selinux
 pip install -U ansible
 pip install -U kolla-ansible
 pip install python-openstackclient python-glanceclient python-neutronclient
+
+# config
 cp -r /usr/local/share/kolla-ansible/etc_examples/kolla /etc/kolla/
 su -c 'cp /usr/local/share/kolla-ansible/ansible/inventory/* /home/vagrant' vagrant
+
+# local settings
 sed -i 's/^#kolla_base_distro:.*/kolla_base_distro: "ubuntu"/' /etc/kolla/globals.yml
 sed -i 's/^#openstack_release:.*/openstack_release: "master"/' /etc/kolla/globals.yml
 sed -i 's/^#kolla_install_type:.*/kolla_install_type: "source"/' /etc/kolla/globals.yml
@@ -39,24 +43,24 @@ sed -i 's/^#nova_compute_virt_type:.*/nova_compute_virt_type: "qemu"/' /etc/koll
 # sed -i 's/^#vmware_vcenter_name:.*/vmware_vcenter_name: afglab/' /etc/kolla/globals.yml
 # sed -i 's/^#vmware_vcenter_cluster_name:.*/vmware_vcenter_cluster_name: afglab-cluster1/' /etc/kolla/globals.yml
 
+kolla-genpwd
+
 # Disable ntp (caused bootstrap-servers hangning)
 sed -i 's/^enable_host_ntp:.*/enable_host_ntp: False/' /usr/local/share/kolla-ansible/ansible/roles/baremetal/defaults/main.yml
 
 # https://bugs.launchpad.net/kolla-ansible/+bug/1746748
-patch < /vagrant/patch/mariadb_bootstrap.patch
+patch /usr/local/share/kolla-ansible/ansible/library/kolla_docker.py < /vagrant/patch/mariadb_bootstrap.patch
 
 # https://bugs.launchpad.net/kolla-ansible/+bug/1748347
-patch < /vagrant/patch/glance_bootstrap.patch
-
-kolla-genpwd
+patch /usr/local/share/kolla-ansible/ansible/roles/glance/tasks/bootstrap_service.yml < /vagrant/patch/glance_bootstrap.patch
 
 cd /home/vagrant
 # start deploy here
-kolla-ansible -i ./all-in-on bootstrap-servers
-kolla-ansible -i ./all-in-on prechecks
-kolla-ansible -i ./all-in-on deploy
+kolla-ansible -i ./all-in-one bootstrap-servers
+kolla-ansible -i ./all-in-one prechecks
+kolla-ansible -i ./all-in-one deploy
 
-kolla-ansible post-deploy
+# kolla-ansible post-deploy
 . /etc/kolla/admin-openrc.sh
 
 . /usr/local/share/kolla-ansible/init-runonce
