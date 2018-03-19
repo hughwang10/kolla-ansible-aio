@@ -54,11 +54,10 @@ patch /usr/local/share/kolla-ansible/ansible/library/kolla_docker.py < /vagrant/
 # https://bugs.launchpad.net/kolla-ansible/+bug/1748347
 patch /usr/local/share/kolla-ansible/ansible/roles/glance/tasks/bootstrap_service.yml < /vagrant/patch/glance_bootstrap.patch
 
-cd /home/vagrant
 # start deploy here
-kolla-ansible -i ./all-in-one bootstrap-servers
-kolla-ansible -i ./all-in-one prechecks
-kolla-ansible -i ./all-in-one deploy
+kolla-ansible -i /home/vagrant/all-in-one bootstrap-servers
+kolla-ansible -i /home/vagrant/all-in-one prechecks
+kolla-ansible -i /home/vagrant/all-in-one deploy
 
 # kolla-ansible post-deploy
 . /etc/kolla/admin-openrc.sh
