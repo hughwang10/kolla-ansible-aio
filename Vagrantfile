@@ -55,20 +55,21 @@ patch /usr/local/share/kolla-ansible/ansible/library/kolla_docker.py < /vagrant/
 patch /usr/local/share/kolla-ansible/ansible/roles/glance/tasks/bootstrap_service.yml < /vagrant/patch/glance_bootstrap.patch
 
 # start deploy here
-kolla-ansible -i /home/vagrant/all-in-one bootstrap-servers
-kolla-ansible -i /home/vagrant/all-in-one prechecks
-kolla-ansible -i /home/vagrant/all-in-one deploy
+# kolla-ansible -i /home/vagrant/all-in-one bootstrap-servers
+# kolla-ansible -i /home/vagrant/all-in-one prechecks
+# kolla-ansible -i /home/vagrant/all-in-one deploy
 
-kolla-ansible post-deploy
-. /etc/kolla/admin-openrc.sh
+# kolla-ansible post-deploy
+# . /etc/kolla/admin-openrc.sh
+
+# test call
+# . /usr/local/share/kolla-ansible/init-runonce
 
 free -h
-df -h
+df /home/vagrant -h
 
 egrep -i "keystone_admin_password" /etc/kolla/passwords.yml
 
-# test call
-echo " . /usr/local/share/kolla-ansible/init-runonce"
 
 SCRIPT
 
