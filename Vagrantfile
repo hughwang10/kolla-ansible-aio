@@ -54,6 +54,10 @@ patch /usr/local/share/kolla-ansible/ansible/library/kolla_docker.py < /vagrant/
 # https://bugs.launchpad.net/kolla-ansible/+bug/1748347
 patch /usr/local/share/kolla-ansible/ansible/roles/glance/tasks/bootstrap_service.yml < /vagrant/patch/glance_bootstrap.patch
 
+free -h
+df /home/vagrant -h
+egrep -i "keystone_admin_password" /etc/kolla/passwords.yml
+
 # start deploy here
 # kolla-ansible -i /home/vagrant/all-in-one bootstrap-servers
 # kolla-ansible -i /home/vagrant/all-in-one prechecks
@@ -64,13 +68,6 @@ patch /usr/local/share/kolla-ansible/ansible/roles/glance/tasks/bootstrap_servic
 
 # test call
 # . /usr/local/share/kolla-ansible/init-runonce
-
-free -h
-df /home/vagrant -h
-
-egrep -i "keystone_admin_password" /etc/kolla/passwords.yml
-
-
 SCRIPT
 
 Vagrant.configure("2") do |config|
