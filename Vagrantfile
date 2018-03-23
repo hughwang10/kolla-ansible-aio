@@ -25,7 +25,10 @@ su -c 'cp /usr/local/share/kolla-ansible/ansible/inventory/* /home/vagrant' vagr
 
 # local settings
 sed -i 's/^#kolla_base_distro:.*/kolla_base_distro: "ubuntu"/' /etc/kolla/globals.yml
-sed -i 's/^#openstack_release:.*/openstack_release: "ocata"/' /etc/kolla/globals.yml
+
+# queens, pike, ocata
+sed -i 's/^#openstack_release:.*/openstack_release: "queens"/' /etc/kolla/globals.yml
+
 sed -i 's/^#kolla_install_type:.*/kolla_install_type: "source"/' /etc/kolla/globals.yml
 sed -i 's/^kolla_internal_vip_address:.*/kolla_internal_vip_address: "192.168.121.254"/' /etc/kolla/globals.yml
 sed -i 's/^#network_interface:.*/network_interface: "enp0s8"/' /etc/kolla/globals.yml
