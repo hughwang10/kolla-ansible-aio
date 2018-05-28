@@ -6,6 +6,12 @@
 
   vars:
     vm_name: reusebox001
+    vm_timezone: Europe/Dublin
+    vm_ip_address: 10.44.147.251
+    vm_ip_netmask: 255.255.255.0
+    vm_ip_gateway: 10.44.147.1
+    vm_ip_dns: 193.181.14.10
+    vm_ip_domain: ericsson.com
 
   tasks:
     - name: Create a VM from a template
@@ -27,29 +33,29 @@
             datastore: "{{DATASTORE}}}"
         networks:
         - name: OAM-EXT
-          ip: 10.44.147.251
-          netmask: 255.255.255.0
-          gateway: 10.44.147.1
+          ip: "{{vm_ip_address}}"
+          netmask: "{{vm_ip_netmask}}"
+          gateway: "{{vm_ip_gateway}}"
         - name: OAM
           ip: 192.168.100.4
           netmask: 255.255.255.0
         customization:
           dns_servers: 
-            - 193.181.14.10
-          domain: ericsson.com
+            - "{{vm_ip_dns}}"
+          domain: "{{vm_ip_domain}}"
           hostname: "{{vm_name}}"
-          timezone: Europe/Dublin
+          timezone: "{{vm_timezone}}"
       tags: deploy
 
     - name: Update repositories cache and install packages
-      delegate_to: 10.44.147.251
+      delegate_to: "{{vm_ip_address}}"
       become: yes
       apt:
         upgrade: dist
-      tags: test
+      tags: update
 
     - name: Update repositories cache and install packages
-      delegate_to: 10.44.147.251
+      delegate_to: "{{vm_ip_address}}"
       become: yes
       apt:
         name:
@@ -67,7 +73,7 @@
       tags: update
 
     - name: pip install
-      delegate_to: 10.44.147.251    
+      delegate_to: "{{vm_ip_address}}"    
       become: yes    
       pip:
         name:
@@ -77,4 +83,4 @@
           - python-glanceclient
           - python-neutronclient
         executable: pip3  
-      tags: update1            
+      tags: update            
