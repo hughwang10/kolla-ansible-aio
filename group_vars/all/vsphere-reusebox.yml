@@ -1,0 +1,22 @@
+---
+#VMware resuebox
+VC_HOST_IP_ADDRESS: 10.44.147.160 #159.107.174.68 
+VC_USERNAME: administrator@vsphere.local 
+VC_PASSWORD: W@pwap12 
+
+DATACENTER: afglab
+DATASTORE: datastoreAFG
+
+esxi_hosts: 
+  - 10.44.147.156
+  - 10.44.147.157
+
+template_name: ubuntu-tmp  
+
+# root_path: openstack
+
+# # prep
+# all_files: "{{playbook_dir}}/group_vars/files"
+
+# # output
+# output_dir: "{{playbook_dir}}/out_result"

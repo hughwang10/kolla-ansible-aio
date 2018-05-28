@@ -1,0 +1,80 @@
+---
+- name: afg
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    vm_name: reusebox001
+
+  tasks:
+    - name: Create a VM from a template
+      vmware_guest:
+        hostname: "{{VC_HOST_IP_ADDRESS}}"
+        username: "{{VC_USERNAME}}"
+        password: "{{VC_PASSWORD}}"
+        validate_certs: no
+        folder: vm
+        name: "{{vm_name}}"
+        guest_id: ubuntu64Guest
+        state: poweredon
+        template: "{{template_name}}"
+        datacenter: afglab
+        cluster: afglab-cluster1
+        disk:
+          - type: thin
+            size_gb: 100
+            datastore: "{{DATASTORE}}}"
+        networks:
+        - name: OAM-EXT
+          ip: 10.44.147.251
+          netmask: 255.255.255.0
+          gateway: 10.44.147.1
+        - name: OAM
+          ip: 192.168.100.4
+          netmask: 255.255.255.0
+        customization:
+          dns_servers: 
+            - 193.181.14.10
+          domain: ericsson.com
+          hostname: "{{vm_name}}"
+          timezone: Europe/Dublin
+      tags: deploy
+
+    - name: Update repositories cache and install packages
+      delegate_to: 10.44.147.251
+      become: yes
+      apt:
+        upgrade: dist
+      tags: test
+
+    - name: Update repositories cache and install packages
+      delegate_to: 10.44.147.251
+      become: yes
+      apt:
+        name:
+          - vim
+          - tree
+          - python-pip
+          - python3-pip
+          - docker.io
+          - python-dev 
+          - libffi-dev
+          - gcc 
+          - libssl-dev 
+          - python-selinux
+        update_cache: yes
+      tags: update
+
+    - name: pip install
+      delegate_to: 10.44.147.251    
+      become: yes    
+      pip:
+        name:
+          - ansible
+          - kolla-ansible
+          - python-openstackclient
+          - python-glanceclient
+          - python-neutronclient
+        executable: pip3  
+      tags: update1            
