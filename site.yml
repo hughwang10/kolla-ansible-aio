@@ -47,14 +47,18 @@
           timezone: "{{vm_timezone}}"
       tags: deploy
 
-    - name: Update repositories cache and install packages
+    - name: dist upgrade
       delegate_to: "{{vm_ip_address}}"
       become: yes
       apt:
         upgrade: dist
+        autoclean: yes
+        autoremove: yes
+        purge: yes
+        update_cache: yes
       tags: update
 
-    - name: Update repositories cache and install packages
+    - name: Update common packages
       delegate_to: "{{vm_ip_address}}"
       become: yes
       apt:
@@ -62,7 +66,6 @@
           - vim
           - tree
           - python-pip
-          - python3-pip
           - docker.io
           - python-dev
           - libffi-dev
@@ -72,26 +75,37 @@
         update_cache: yes
       tags: update
 
-    - name: pip install
+    - name: update /etc/hosts
+      delegate_to: "{{vm_ip_address}}"
+      become: yes
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^{{vm_ip_address}}'
+        line: "{{vm_ip_address}}  {{vm_name}} {{vm_name}}.{{vm_ip_domain}} aio"
+      tags: update
+
+    - name: pip2 install
       delegate_to: "{{vm_ip_address}}"
       become: yes
       pip:
         name:
+          - pip
           - ansible
-          - kolla-ansible
           - python-openstackclient
           - python-glanceclient
           - python-neutronclient
-        executable: pip3
+          - kolla-ansible
+        executable: pip2
+        state: latest
       tags: update
 
-    - name: copy config files
+    - name: copy kolla config files
       delegate_to: "{{vm_ip_address}}"
       become: yes
       command: cp -r /usr/local/share/kolla-ansible/etc_examples/kolla /etc/kolla
       tags: update
 
-    - name: copy inventory file
+    - name: copy all-in-one inventory file
       delegate_to: "{{vm_ip_address}}"
       become: yes
       command: "cp /usr/local/share/kolla-ansible/ansible/inventory/all-in-one /home/hugh/"
@@ -127,5 +141,6 @@
 
     - name: update globals.yml
       delegate_to: "{{vm_ip_address}}"
-      shell: sudo sh kolla-genpwd
-      tags: update1
+      become: yes
+      command: kolla-genpwd
+      tags: update
