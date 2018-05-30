@@ -40,7 +40,7 @@
           ip: 192.168.100.4
           netmask: 255.255.255.0
         customization:
-          dns_servers: 
+          dns_servers:
             - "{{vm_ip_dns}}"
           domain: "{{vm_ip_domain}}"
           hostname: "{{vm_name}}"
@@ -64,17 +64,17 @@
           - python-pip
           - python3-pip
           - docker.io
-          - python-dev 
+          - python-dev
           - libffi-dev
-          - gcc 
-          - libssl-dev 
+          - gcc
+          - libssl-dev
           - python-selinux
         update_cache: yes
       tags: update
 
     - name: pip install
-      delegate_to: "{{vm_ip_address}}"    
-      become: yes    
+      delegate_to: "{{vm_ip_address}}"
+      become: yes
       pip:
         name:
           - ansible
@@ -82,5 +82,50 @@
           - python-openstackclient
           - python-glanceclient
           - python-neutronclient
-        executable: pip3  
-      tags: update            
+        executable: pip3
+      tags: update
+
+    - name: copy config files
+      delegate_to: "{{vm_ip_address}}"
+      become: yes
+      command: cp -r /usr/local/share/kolla-ansible/etc_examples/kolla /etc/kolla
+      tags: update
+
+    - name: copy inventory file
+      delegate_to: "{{vm_ip_address}}"
+      become: yes
+      command: "cp /usr/local/share/kolla-ansible/ansible/inventory/all-in-one /home/hugh/"
+      tags: update
+
+    - name: update globals.yml
+      delegate_to: "{{vm_ip_address}}"
+      become: yes
+      lineinfile:
+        dest: /etc/kolla/globals.yml
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      with_items:
+        - { regexp: '^#kolla_base_distro:.*', line: 'kolla_base_distro: "ubuntu"' }
+        - { regexp: '^#openstack_release: .*', line: 'openstack_release: "queens"' } # queens, pike, ocata
+        - { regexp: '^#kolla_install_type:.*', line: 'kolla_install_type: "source"' }
+        - { regexp: '^kolla_internal_vip_address:.*', line: 'kolla_internal_vip_address: "10.44.147.241"' }
+        - { regexp: '^#network_interface:.*', line: 'network_interface: "ens160"' }
+        - { regexp: '^#neutron_external_interface:.*', line: 'neutron_external_interface: "ens192"' }
+        - { regexp: '#nova_compute_virt_type:.*', line: 'nova_compute_virt_type: "kvm"' }
+      tags: update
+
+    - name: update globals.yml
+      delegate_to: "{{vm_ip_address}}"
+      become: yes
+      lineinfile:
+        dest: /usr/local/share/kolla-ansible/ansible/roles/baremetal/defaults/main.yml
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      with_items:
+        - { regexp: '^enable_host_ntp:.*', line: 'enable_host_ntp: false' }
+      tags: update
+
+    - name: update globals.yml
+      delegate_to: "{{vm_ip_address}}"
+      shell: sudo sh kolla-genpwd
+      tags: update1
