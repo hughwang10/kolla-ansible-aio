@@ -5,12 +5,15 @@
   gather_facts: false
 
   vars:
+    vm_datacenter: afglab
+    vm_cluster: afglab-cluster1
+    vm_folder: vm
     vm_name: reusebox001
     vm_user: hugh
     vm_timezone: Europe/Dublin
-    vm_ip_address: 10.44.147.251
+    vm_ip_address: 10.10.10.4
     vm_ip_netmask: 255.255.255.0
-    vm_ip_gateway: 10.44.147.1
+    vm_ip_gateway: 10.10.10.1
     vm_ip_dns: 193.181.14.10
     vm_ip_domain: ericsson.com
 
@@ -21,24 +24,24 @@
         username: "{{VC_USERNAME}}"
         password: "{{VC_PASSWORD}}"
         validate_certs: no
-        folder: vm
+        folder: "{{vm_folder}}"
         name: "{{vm_name}}"
         guest_id: ubuntu64Guest
         state: poweredon
         template: "{{template_name}}"
-        datacenter: afglab
-        cluster: afglab-cluster1
+        datacenter: "{{vm_datacenter}}"
+        cluster: "{{vm_cluster}}"
         disk:
           - type: thin
             size_gb: 100
             datastore: "{{DATASTORE}}}"
         networks:
-        - name: OAM-EXT
+        - name: OAM
           ip: "{{vm_ip_address}}"
           netmask: "{{vm_ip_netmask}}"
           gateway: "{{vm_ip_gateway}}"
-        - name: OAM
-          ip: 192.168.100.4
+        - name: Access
+          ip: 10.10.11.4
           netmask: 255.255.255.0
         customization:
           dns_servers:
@@ -46,6 +49,20 @@
           domain: "{{vm_ip_domain}}"
           hostname: "{{vm_name}}"
           timezone: "{{vm_timezone}}"
+      tags: create
+
+    - name: Take snapshot of a VM
+      vmware_guest_snapshot:
+        hostname: "{{VC_HOST_IP_ADDRESS}}"
+        username: "{{VC_USERNAME}}"
+        password: "{{VC_PASSWORD}}"
+        datacenter: "{{vm_datacenter}}"
+        folder: "{{vm_folder}}"
+        validate_certs: no
+        name: "{{vm_name}}"
+        state: present
+        snapshot_name: init0
+        quiesce: True
       tags: create
 
     - name: dist upgrade
@@ -123,11 +140,11 @@
         - { regexp: '^#kolla_base_distro:.*', line: 'kolla_base_distro: "ubuntu"' }
         - { regexp: '^#openstack_release: .*', line: 'openstack_release: "queens"' } # queens, pike, ocata
         - { regexp: '^#kolla_install_type:.*', line: 'kolla_install_type: "source"' }
-        - { regexp: '^kolla_internal_vip_address:.*', line: 'kolla_internal_vip_address: "10.44.147.241"' }
-        - { regexp: '^#enable_haproxy:.*', line: '#enable_haproxy: "no"' }
+        - { regexp: '^kolla_internal_vip_address:.*', line: 'kolla_internal_vip_address: "10.10.10.254"' } # 10.10.10.1 on vyos
+        # - { regexp: '^#enable_haproxy:.*', line: 'enable_haproxy: "no"' }
         - { regexp: '^#network_interface:.*', line: 'network_interface: "ens160"' }
         - { regexp: '^#neutron_external_interface:.*', line: 'neutron_external_interface: "ens192"' }
-        - { regexp: '#nova_compute_virt_type:.*', line: 'nova_compute_virt_type: "kvm"' }
+        - { regexp: '#nova_compute_virt_type:.*', line: 'nova_compute_virt_type: "qemu"' }
       tags: update
 
     - name: disable NTP
@@ -154,8 +171,9 @@
           - "kolla-ansible -i /home/{{vm_user}}/all-in-one bootstrap-servers"
           - "kolla-ansible -i /home/{{vm_user}}/all-in-one prechecks"
           - "kolla-ansible -i /home/{{vm_user}}/all-in-one deploy"
-          - ". /etc/kolla/admin-openrc.sh"
-          - ". /usr/local/share/kolla-ansible/init-runonce"
+          - kolla-ansible post-deploy
+          - . /etc/kolla/admin-openrc.sh
+          - . /usr/local/share/kolla-ansible/init-runonce
       tags: deploy
     - name: print deploy tasks
       debug: msg="{{ os_deploy }}"

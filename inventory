@@ -1,2 +1,2 @@
 [server]
-10.44.147.251 ansible_user=hugh  ansible_ssh_pass='wapwap12' ansible_become_pass='wapwap12'
+10.10.10.4 ansible_user=hugh  ansible_ssh_pass='wapwap12' ansible_become_pass='wapwap12'
