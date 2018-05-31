@@ -46,7 +46,7 @@
           domain: "{{vm_ip_domain}}"
           hostname: "{{vm_name}}"
           timezone: "{{vm_timezone}}"
-      tags: deploy
+      tags: create
 
     - name: dist upgrade
       delegate_to: "{{vm_ip_address}}"
@@ -123,7 +123,7 @@
         - { regexp: '^#kolla_base_distro:.*', line: 'kolla_base_distro: "ubuntu"' }
         - { regexp: '^#openstack_release: .*', line: 'openstack_release: "queens"' } # queens, pike, ocata
         - { regexp: '^#kolla_install_type:.*', line: 'kolla_install_type: "source"' }
-        - { regexp: '^kolla_internal_vip_address:.*', line: 'kolla_internal_vip_address: "10.44.147.251"' }
+        - { regexp: '^kolla_internal_vip_address:.*', line: 'kolla_internal_vip_address: "10.44.147.241"' }
         - { regexp: '^#enable_haproxy:.*', line: '#enable_haproxy: "no"' }
         - { regexp: '^#network_interface:.*', line: 'network_interface: "ens160"' }
         - { regexp: '^#neutron_external_interface:.*', line: 'neutron_external_interface: "ens192"' }
@@ -150,21 +150,22 @@
     - name: deploy tasks
       set_fact:
         os_deploy:
+          - sudo su
           - "kolla-ansible -i /home/{{vm_user}}/all-in-one bootstrap-servers"
           - "kolla-ansible -i /home/{{vm_user}}/all-in-one prechecks"
           - "kolla-ansible -i /home/{{vm_user}}/all-in-one deploy"
           - ". /etc/kolla/admin-openrc.sh"
           - ". /usr/local/share/kolla-ansible/init-runonce"
-      tags: update
+      tags: deploy
     - name: print deploy tasks
       debug: msg="{{ os_deploy }}"
-      tags: update
+      tags: deploy
 
     - name: get password
       delegate_to: "{{vm_ip_address}}"
       become: yes
       command: egrep -i "keystone_admin_password" /etc/kolla/passwords.yml
       register: rst
-      tags: update
+      tags: deploy
     - debug: msg="{{rst.stdout}}"
-      tags: update
+      tags: deploy
