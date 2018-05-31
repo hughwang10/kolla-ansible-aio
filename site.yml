@@ -6,6 +6,7 @@
 
   vars:
     vm_name: reusebox001
+    vm_user: hugh
     vm_timezone: Europe/Dublin
     vm_ip_address: 10.44.147.251
     vm_ip_netmask: 255.255.255.0
@@ -129,7 +130,7 @@
         - { regexp: '#nova_compute_virt_type:.*', line: 'nova_compute_virt_type: "kvm"' }
       tags: update
 
-    - name: update globals.yml
+    - name: disable NTP
       delegate_to: "{{vm_ip_address}}"
       become: yes
       lineinfile:
@@ -140,8 +141,30 @@
         - { regexp: '^enable_host_ntp:.*', line: 'enable_host_ntp: false' }
       tags: update
 
-    - name: update globals.yml
+    - name: kolla-genpwd
       delegate_to: "{{vm_ip_address}}"
       become: yes
       command: kolla-genpwd
+      tags: update
+
+    - name: deploy tasks
+      set_fact:
+        os_deploy:
+          - "kolla-ansible -i /home/{{vm_user}}/all-in-one bootstrap-servers"
+          - "kolla-ansible -i /home/{{vm_user}}/all-in-one prechecks"
+          - "kolla-ansible -i /home/{{vm_user}}/all-in-one deploy"
+          - ". /etc/kolla/admin-openrc.sh"
+          - ". /usr/local/share/kolla-ansible/init-runonce"
+      tags: update
+    - name: print deploy tasks
+      debug: msg="{{ os_deploy }}"
+      tags: update
+
+    - name: get password
+      delegate_to: "{{vm_ip_address}}"
+      become: yes
+      command: egrep -i "keystone_admin_password" /etc/kolla/passwords.yml
+      register: rst
+      tags: update
+    - debug: msg="{{rst.stdout}}"
       tags: update
