@@ -90,6 +90,11 @@
           - gcc
           - libssl-dev
           - python-selinux
+          - qemu-kvm
+          - libvirt-bin
+          - virtinst
+          - bridge-utils
+          - cpu-checker
         update_cache: yes
       tags: update
 
@@ -144,7 +149,7 @@
         # - { regexp: '^#enable_haproxy:.*', line: 'enable_haproxy: "no"' }
         - { regexp: '^#network_interface:.*', line: 'network_interface: "ens160"' }
         - { regexp: '^#neutron_external_interface:.*', line: 'neutron_external_interface: "ens192"' }
-        - { regexp: '#nova_compute_virt_type:.*', line: 'nova_compute_virt_type: "qemu"' }
+        - { regexp: '#nova_compute_virt_type:.*', line: 'nova_compute_virt_type: "kvm"' } # qemu
       tags: update
 
     - name: disable NTP
