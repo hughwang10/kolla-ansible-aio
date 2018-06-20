@@ -6,10 +6,12 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 $common_script = <<SCRIPT
-apt-get update
-apt-get install -qy python-pip docker.io
-pip install -U pip
-echo "192.168.121.201 aio" | sudo tee -a /etc/hosts
+sudo apt-get update
+sudo apt-get install -qy python-pip docker.io
+sudo -H pip install -U pip
+sudo -H pip install ansible
+sudo -H pip install docker-compose
+# echo "192.168.121.201 aio" | sudo tee -a /etc/hosts
 SCRIPT
 
 # $kolla_ansible_script = <<SCRIPT
