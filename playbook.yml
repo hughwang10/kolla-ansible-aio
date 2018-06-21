@@ -11,7 +11,15 @@
         state: directory
         mode: 0755
 
-    - name: clone jupyterlab-docker from github
-      git:
-        repo: 'https://github.com/hughwang10/jupyterlab-docker.git'
-        dest: /home/vagrant/project
+    # - name: Update common packages
+    #   become: yes
+    #   apt:
+    #     name:
+    #       - apt-transport-https
+    #     update_cache: yes
+    #   tags: update
+
+    # - name: clone jupyterlab-docker from github
+    #   git:
+    #     repo: 'https://github.com/hughwang10/jupyterlab-docker.git'
+    #     dest: /home/vagrant/project

@@ -7,7 +7,7 @@
 # you're doing.
 $common_script = <<SCRIPT
 sudo apt-get update
-sudo apt-get install -qy python-pip docker.io
+sudo apt-get install -qy python-pip docker.io apt-transport-https
 sudo -H pip install -U pip
 sudo -H pip install ansible
 sudo -H pip install docker-compose
@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
   config.vm.provider :virtualbox do |vb|
     vb.cpus = 2
     vb.gui = false
-    vb.memory = 8192
+    vb.memory = 4096
   end
 
   config.vm.define vm_name = "aio" do |aio|
