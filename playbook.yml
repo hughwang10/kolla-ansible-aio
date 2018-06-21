@@ -1,0 +1,17 @@
+---
+- name: afg
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: create project
+      file:
+        path: /home/vagrant/project
+        state: directory
+        mode: 0755
+
+    - name: clone jupyterlab-docker fro github
+      git:
+        repo: 'https://github.com/hughwang10/jupyterlab-docker.git'
+        dest: /home/vagrant/project
