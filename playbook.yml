@@ -8,17 +8,42 @@
     - name: create project
       file:
         path: /home/vagrant/project
+        owner: vagrant
+        group: vagrant
         state: directory
         mode: 0755
 
-    # - name: Update common packages
-    #   become: yes
-    #   apt:
-    #     name:
-    #       - apt-transport-https
-    #     update_cache: yes
-    #   tags: update
+    - name: add apt key
+      become: yes
+      apt_key:
+        url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+        state: present
 
+    - name: add apt repo
+      become: yes
+      apt_repository:
+        repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+
+    - name: install kubectl
+      become: yes
+      apt:
+        name:
+          - kubectl
+        update_cache: yes
+
+    - name: download minikube
+      become: yes
+      get_url:
+        url: https://storage.googleapis.com/minikube/releases/v0.28.0/minikube-linux-amd64
+        dest: /usr/local/bin/minikube
+        mode: 0755  
+
+    - name: start minikube
+      become: yes
+      command: /usr/local/bin/minikube start --vm-driver=none
+      register: rst
+    - debug: msg="{{rst.stdout_lines}}"
     # - name: clone jupyterlab-docker from github
     #   git:
     #     repo: 'https://github.com/hughwang10/jupyterlab-docker.git'
