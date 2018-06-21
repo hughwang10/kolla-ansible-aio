@@ -11,7 +11,7 @@
         state: directory
         mode: 0755
 
-    - name: clone jupyterlab-docker fro github
+    - name: clone jupyterlab-docker from github
       git:
         repo: 'https://github.com/hughwang10/jupyterlab-docker.git'
         dest: /home/vagrant/project
