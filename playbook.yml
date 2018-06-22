@@ -52,13 +52,12 @@
         - kubectl run hello-minikube --image=k8s.gcr.io/echoserver:1.10 --port=8080
         - kubectl expose deployment hello-minikube --type=NodePort
         - curl $(minikube service hello-minikube --url)
-        - kubectl delete services hello-minikube
-        - kubectl delete deployment hello-minikube
+        # - kubectl delete services hello-minikube
+        # - kubectl delete deployment hello-minikube
       register: rst
-      tags: test
     - debug: msg="{{rst.results[2].stdout_lines}}"
-      tags: test
-    # - name: clone jupyterlab-docker from github
-    #   git:
-    #     repo: 'https://github.com/hughwang10/jupyterlab-docker.git'
-    #     dest: /home/vagrant/project
+
+    - name: clone jupyterlab-docker from github
+      git:
+        repo: 'https://github.com/hughwang10/jupyterlab-docker.git'
+        dest: /home/vagrant/project/jupyter/
