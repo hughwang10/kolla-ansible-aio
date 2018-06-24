@@ -67,6 +67,18 @@
         repo: 'https://github.com/hughwang10/flask-docker.git'
         dest: /home/vagrant/project/flask-docker/
 
+    - name: build flask-docker local image
+      become: yes
+      shell: docker build -t test .
+      args:
+        chdir: /home/vagrant/project/flask-docker/lifegame
+      register: rst
+    - debug: msg="{{rst.stdout_lines}}"
+
+    - name: deploy flask-docker
+      become: yes
+      shell: kubectl apply -f /vagrant/deploy.yml
+
     # - name: run flask-docker
     #   become: yes
     #   shell: "{{item}}"
