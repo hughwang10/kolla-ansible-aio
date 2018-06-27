@@ -1,0 +1,47 @@
+---
+- name: ssl-cert
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    server_passwd: wapwap12
+    server_name: registry
+  tasks:
+    # - name: Generate a Private Key
+    #   become: yes
+    #   shell: >
+    #     openssl genrsa
+    #     -des3
+    #     -passout pass:"{{server_passwd}}"
+    #     -out server.key
+    #     1024
+    #   args:
+    #     chdir: /opt/registry/cert
+    #     creates: server.key
+
+    - name: create CSR and Key
+      become: yes
+      shell: >
+        openssl req
+        -nodes
+        -newkey rsa:2048
+        -keyout "{{server_name}}.key"
+        -passout "pass:{{server_passwd}}"
+        -out "{{server_name}}.csr"
+        -subj "/C=IE/ST=Dublin/L=Dublin/O=LMI Security/OU=AFG Lab/CN=aio"
+      args:
+        chdir: /opt/registry/cert
+        creates: "{{server_name}}.key"
+
+    - name: Generating a Self-Signed Certificate
+      become: yes
+      shell: >
+        openssl x509
+        -req
+        -days 365
+        -in "{{server_name}}.csr"
+        -signkey "{{server_name}}.key"
+        -out "{{server_name}}.crt"
+      args:
+        chdir: /opt/registry/cert
+        creates: "{{server_name}}.crt"
