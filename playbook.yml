@@ -13,6 +13,32 @@
         state: directory
         mode: 0755
 
+    - name: Creates /etc/ansible
+      become: yes
+      file:
+        path: /etc/ansible
+        state: directory
+        mode: 0755
+
+    - name: Download ansible.cfg
+      become: yes
+      get_url:
+        url: https://raw.githubusercontent.com/ansible/ansible/devel/examples/ansible.cfg
+        dest: /etc/ansible/ansible.cfg
+        mode: 0644
+
+    - name: update ansible.cfg
+      become: yes
+      lineinfile:
+        dest: /etc/ansible/ansible.cfg
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      with_items:
+        - { regexp: '^#host_key_checking.*', line: 'host_key_checking = False' }
+        - { regexp: '^#pipelining.*', line: 'pipelining = False' }
+        - { regexp: '^#forks.*', line: 'forks = 100' }
+        - { regexp: '^#retry_files_enabled.*', line: 'retry_files_enabled = False' }
+
     - name: add apt key
       become: yes
       apt_key:

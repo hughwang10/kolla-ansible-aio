@@ -12,7 +12,6 @@ sudo -H pip install -U pip
 sudo -H pip install ansible
 sudo -H pip install docker-compose
 ansible-playbook /vagrant/playbook.yml
-# echo "192.168.121.201 aio" | sudo tee -a /etc/hosts
 SCRIPT
 
 Vagrant.configure("2") do |config|
