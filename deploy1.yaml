@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: test
+  labels:
+    app: test
+spec:
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      containers:
+        - name: test
+          image: localhost:5000/hugh_test:0.1
+          ports:
+           - name: http
+             containerPort: 80
+      imagePullSecrets:
+        - name: registrypullsecret           
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test
+  labels:
+    app: test
+spec:
+  ports:
+  - nodePort: 30080
+    port: 80
+    protocol: TCP
+    targetPort: 80    
+  selector:
+    app: test
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
+  

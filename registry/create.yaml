@@ -1,5 +1,5 @@
 ---
-- name: afg
+- name: registry
   hosts: localhost
   connection: local
   gather_facts: false
