@@ -95,7 +95,7 @@
 
     - name: apply registry-afglab secret
       become: yes
-      shell: kubectl apply -f secret.yaml
+      shell: kubectl apply -f /vagrant/secret.yaml
 
     # - name: run hello-minikube
     #   become: yes
