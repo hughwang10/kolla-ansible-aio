@@ -79,7 +79,7 @@
 
     - name: upload CA cert
       copy:
-        src: registry.crt
+        src: "{{playbook_dir}}/registry.crt"
         dest: /usr/local/share/ca-certificates/registry.crt
         mode: 0644
 
@@ -95,7 +95,7 @@
 
     - name: apply registry-afglab secret
       become: yes
-      shell: kubectl apply -f /vagrant/secret.yaml
+      shell: kubectl apply -f "{{playbook_dir}}/secret.yaml"
 
     # - name: run hello-minikube
     #   become: yes
