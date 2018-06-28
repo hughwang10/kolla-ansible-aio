@@ -13,11 +13,12 @@ spec:
       containers:
         - name: test
           image: localhost:5000/hugh_test:0.1
+          imagePullPolicy: IfNotPresent
           ports:
            - name: http
              containerPort: 80
       imagePullSecrets:
-        - name: registrypullsecret           
+        - name: registrypullsecret
 ---
 apiVersion: v1
 kind: Service
@@ -30,11 +31,10 @@ spec:
   - nodePort: 30080
     port: 80
     protocol: TCP
-    targetPort: 80    
+    targetPort: 80
   selector:
     app: test
   sessionAffinity: None
   type: NodePort
 status:
   loadBalancer: {}
-  
