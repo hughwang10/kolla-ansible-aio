@@ -4,15 +4,51 @@
   connection: local
   gather_facts: false
 
+  vars:
+    server_passwd: wapwap12
+    server_name: registry
+    server_path: /opt/registry
+
   tasks:
-    - name: create auth directory
+    - name: create auth/cert directory
       become: yes
       file:
-        path: /opt/registry/auth
+        path: "{{server_path}}/{{item}}"
         state: directory
         mode: 0755
+      with_items:
+        - auth
+        - cert
+        - data  
 
-    - name: create htpassword if not exist
+    - name: create CSR and Key
+      become: yes
+      shell: >
+        openssl req
+        -nodes
+        -newkey rsa:2048
+        -keyout "{{server_name}}.key"
+        -passout "pass:{{server_passwd}}"
+        -out "{{server_name}}.csr"
+        -subj "/C=IE/ST=Dublin/L=Dublin/O=LMI Security/OU=AFG Lab/CN=aio"
+      args:
+        chdir: "{{server_path}}/cert"
+        creates: "{{server_name}}.key"
+
+    - name: Generating a Self-Signed Certificate
+      become: yes
+      shell: >
+        openssl x509
+        -req
+        -days 365
+        -in "{{server_name}}.csr"
+        -signkey "{{server_name}}.key"
+        -out "{{server_name}}.crt"
+      args:
+        chdir: "{{server_path}}/cert"
+        creates: "{{server_name}}.crt" 
+
+    - name: create htpassword
       become: yes
       shell: >
         docker run
@@ -22,12 +58,6 @@
         -Bbn admin wapwap12
         > /opt/registry/auth/htpasswd
       args:
-        chdir: /opt/registry/auth
+        chdir: "{{server_path}}/auth"
         creates: htpasswd
-
-    - name: create images directory
-      become: yes
-      file:
-        path: /opt/registry/data
-        state: directory
-        mode: 0755
+       
