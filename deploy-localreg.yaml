@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: test
-          image: localhost:5000/hugh_test:0.1
+          image: registry-afglab:5000/hugh_test
           imagePullPolicy: IfNotPresent
           ports:
            - name: http

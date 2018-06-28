@@ -83,27 +83,54 @@
       register: rst
     - debug: msg="{{rst.results[2].stdout_lines}}"
 
+    - name: add line for registry-afglab
+      become: tyes
+      lineinfile:
+        path: /etc/hosts
+        line: '10.44.147.246 registry-afglab'
+
+    - name: upload CA cert
+      copy:
+        src: registry.crt
+        dest: /usr/local/share/ca-certificates/registry.crt
+        mode: 0644
+
+    - name: load new CA
+      become: yes
+      shell: update-ca-certificates
+
+    - name: restart docker
+      become: yes
+      service:
+        name: docker
+        state: restarted
+
+    - name: apply registry-afglab secret
+      become: yes
+      shell: kubectl apply -f secret.yaml
+
+
     # - name: clone jupyterlab-docker from github
     #   git:
     #     repo: 'https://github.com/hughwang10/jupyterlab-docker.git'
     #     dest: /home/vagrant/project/jupyter/
 
-    - name: clone flask-docker from github
-      git:
-        repo: 'https://github.com/hughwang10/flask-docker.git'
-        dest: /home/vagrant/project/flask-docker/
+    # - name: clone flask-docker from github
+    #   git:
+    #     repo: 'https://github.com/hughwang10/flask-docker.git'
+    #     dest: /home/vagrant/project/flask-docker/
 
-    - name: build flask-docker local image
-      become: yes
-      shell: docker build -t test .
-      args:
-        chdir: /home/vagrant/project/flask-docker/lifegame
-      register: rst
-    - debug: msg="{{rst.stdout_lines}}"
+    # - name: build flask-docker local image
+    #   become: yes
+    #   shell: docker build -t test .
+    #   args:
+    #     chdir: /home/vagrant/project/flask-docker/lifegame
+    #   register: rst
+    # - debug: msg="{{rst.stdout_lines}}"
 
-    - name: deploy flask-docker
-      become: yes
-      shell: kubectl apply -f /vagrant/deploy.yml
+    # - name: deploy flask-docker
+    #   become: yes
+    #   shell: kubectl apply -f /vagrant/deploy.yml
 
     # - name: run flask-docker
     #   become: yes
@@ -111,4 +138,3 @@
     #   with_items:
     #     - kubectl run flask-docker --image=flask-docker_flask-lifegame:latest --port=10080
     #     - kubectl expose deployment flask-docker --type=NodePort
-    #   tags: test
