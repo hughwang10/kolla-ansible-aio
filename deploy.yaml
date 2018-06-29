@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: test
-          image: registry-afglab:5000/hugh_test
+          image: registry-afglab:5000/hugh_test:gold
           imagePullPolicy: IfNotPresent
           ports:
            - name: http
